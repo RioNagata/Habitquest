@@ -12,7 +12,10 @@ const HabitCard = ({ habit }) => {
 
   return (
     <div className={`habit-card ${habit.completed ? "completed" : ""}`}>
-      <span>{habit.name}</span>
+      <div>
+        <strong>{habit.name}</strong>
+        <p className="habit-frequency">({habit.frequency})</p>
+      </div>
       <button onClick={handleComplete}>
         {habit.completed ? "Done ✅" : "Complete"}
       </button>

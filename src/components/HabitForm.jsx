@@ -5,6 +5,7 @@ const HabitForm = () => {
   const { addHabit } = useContext(HabitContext);
   const [name, setName] = useState("");
   const [xpReward, setXpReward] = useState(10);
+  const [frequency, setFrequency] = useState("daily");
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,6 +14,7 @@ const HabitForm = () => {
     const newHabit = {
       id: Date.now(),
       name,
+      frequency,
       completed: false,
       xpReward: Number(xpReward),
     };
@@ -20,6 +22,7 @@ const HabitForm = () => {
     addHabit(newHabit);
     setName("");
     setXpReward(10);
+    setFrequency("daily");
   };
 
   return (
@@ -30,6 +33,15 @@ const HabitForm = () => {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
+      <select
+        value={frequency}
+        onChange={(e) => setFrequency(e.target.value)}
+      >
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select>
       <input
         type="number"
         min="1"
