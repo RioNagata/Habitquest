@@ -1,9 +1,13 @@
+// src/App.js
 import React from "react";
 import { HabitProvider } from "./context/HabitContext";
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
-import HabitList from "./components/HabitList";
 import HabitForm from "./components/HabitForm";
+import HabitList from "./components/HabitList";
+import PreviousHabits from "./components/PreviousHabits";
+import Achievements from "./components/Achievements";
+
 import "./styles/App.css";
 
 function App() {
@@ -12,9 +16,11 @@ function App() {
       <div className="App">
         <Navbar />
         <main>
-          <Dashboard />
-          <HabitForm />
-          <HabitList />
+          <Dashboard />        {/* Shows level, XP, completed habits */}
+          <HabitForm />        {/* Form to add new habits */}
+          <HabitList />        {/* Active habits with timer and actions */}
+          <PreviousHabits /> 
+          <Achievements />    {/* Completed or failed habits to restart */}
         </main>
       </div>
     </HabitProvider>

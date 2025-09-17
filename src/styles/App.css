@@ -33,10 +33,10 @@
 }
 
 .dashboard {
+  background: #f7f7f7;
+  padding: 15px;
   margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #aaa;
-  border-radius: 5px;
+  border-radius: 8px;
 }
 
 .navbar {
@@ -98,4 +98,53 @@
   font-size: 0.8rem;
   color: #666;
 }
+
+.habit-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.habit-card.failed {
+  background-color: #ffe5e5;
+  border: 1px solid #ff4d4d;
+}
+
+.habit-card.completed {
+  background-color: #e5ffe5;
+  border: 1px solid #4dff4d;
+}
+
+.player-stats {
+  background: #f0f0f0;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.habit-timer {
+  font-size: 0.8rem;
+  color: #ff6600;
+  margin-top: 4px;
+}
+
+.previous-habits {
+  margin-top: 30px;
+}
+
+.previous-habit-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.previous-habit-card button {
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
 
