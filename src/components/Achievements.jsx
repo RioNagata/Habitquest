@@ -1,23 +1,22 @@
+// src/components/Achievements.jsx
 import React, { useContext } from "react";
 import { HabitContext } from "../context/HabitContext";
 
-const Achievements = () => {
-  const { achievements, resetAchievements } = useContext(HabitContext);
+export default function Achievements() {
+  const { achievements } = useContext(HabitContext);
+
+  if (achievements.length === 0) return <p>No achievements yet. Keep going!</p>;
 
   return (
-    <div>
-      <h2>Achievements / Badges</h2>
-      {achievements.length === 0 && <p>No achievements yet.</p>}
+    <div className="achievements">
+      <h2>Achievements 🏆</h2>
       <ul>
         {achievements.map((ach) => (
-          <li key={ach.id}>🏅 {ach.name}</li>
+          <li key={ach.id} className="achievement">
+            <span role="img" aria-label="medal">🏅</span> {ach.name}
+          </li>
         ))}
       </ul>
-      {achievements.length > 0 && (
-        <button onClick={resetAchievements}>Reset Achievements</button>
-      )}
     </div>
   );
-};
-
-export default Achievements;
+}

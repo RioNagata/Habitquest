@@ -21,68 +21,55 @@ export const HabitProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Achievement list
+  // Expanded achievement list
   const achievementList = [
-    {
-      id: 1,
-      name: "First Habit Completed",
-      condition: (player, habits, previousHabits, lastCompletedHabit) =>
-        lastCompletedHabit !== undefined,
+    { id: 1, name: "First Habit Completed", condition: (player, habits, previousHabits, lastCompletedHabit) => lastCompletedHabit !== undefined },
+    { id: 2, name: "Level 5 Achiever", condition: (player) => player.level >= 5 },
+    { id: 3, name: "10 Habits Completed", condition: (player, habits, previousHabits) => previousHabits.filter(h => h.status === "completed").length >= 10 },
+    { id: 4, name: "First Fail", condition: (player, habits, previousHabits) => previousHabits.some(h => h.status === "failed") },
+    { id: 5, name: "5 Habits Completed", condition: (player, habits, previousHabits) => previousHabits.filter(h => h.status === "completed").length >= 5 },
+    { id: 6, name: "Habit Streaker", condition: (player, habits, previousHabits) => {
+        const completed = previousHabits.filter(h => h.status === "completed");
+        if (completed.length < 3) return false;
+        const lastThree = completed.slice(-3);
+        return !lastThree.some(h => h.status !== "completed");
+      }
     },
-    {
-      id: 2,
-      name: "Level 5 Achiever",
-      condition: (player) => player.level >= 5,
-    },
-    {
-      id: 3,
-      name: "10 Habits Completed",
-      condition: (player, habits, previousHabits) =>
-        previousHabits.filter((h) => h.status === "completed").length >= 10,
-    },
+    { id: 7, name: "Monthly Master", condition: (player, habits, previousHabits, lastCompletedHabit) => lastCompletedHabit && lastCompletedHabit.period === "monthly" && lastCompletedHabit.status === "completed" },
+    { id: 8, name: "Daily Grinder", condition: (player, habits, previousHabits) => previousHabits.filter(h => h.status === "completed" && h.period === "daily").length >= 7 },
+    { id: 9, name: "XP Collector", condition: (player) => player.xp >= 200 },
+    { id: 10, name: "Yearly Planner", condition: (player, habits, previousHabits, lastCompletedHabit) => lastCompletedHabit && lastCompletedHabit.period === "yearly" && lastCompletedHabit.status === "completed" },
+    { id: 11, name: "Restart Enthusiast", condition: (player, habits, previousHabits, lastCompletedHabit) => lastCompletedHabit && lastCompletedHabit.restarted === true },
   ];
 
   // Check and unlock achievements
   const checkAchievements = (lastCompletedHabit, updatedPlayer) => {
     setAchievements((prevAchievements) => {
       const newAchievements = [...prevAchievements];
-
       achievementList.forEach((ach) => {
-        if (newAchievements.some((a) => a.id === ach.id)) return;
-
+        if (newAchievements.some(a => a.id === ach.id)) return;
         const playerToCheck = updatedPlayer || player;
-
         if (ach.condition(playerToCheck, habits, previousHabits, lastCompletedHabit)) {
           newAchievements.push(ach);
         }
       });
-
       return newAchievements;
     });
   };
 
-  // Helper: calculate habit due time
+  // Helper: calculate due time
   const calculateDueTime = (period) => {
     const now = new Date();
-    switch (period) {
-      case "daily":
-        return now.getTime() + 24 * 60 * 60 * 1000;
-      case "weekly":
-        return now.getTime() + 7 * 24 * 60 * 60 * 1000;
-      case "monthly":
-        const nextMonth = new Date(now);
-        nextMonth.setMonth(now.getMonth() + 1);
-        return nextMonth.getTime();
-      case "yearly":
-        const nextYear = new Date(now);
-        nextYear.setFullYear(now.getFullYear() + 1);
-        return nextYear.getTime();
-      default:
-        return now.getTime() + 24 * 60 * 60 * 1000;
+    switch(period) {
+      case "daily": return now.getTime() + 24*60*60*1000;
+      case "weekly": return now.getTime() + 7*24*60*60*1000;
+      case "monthly": const nextMonth = new Date(now); nextMonth.setMonth(now.getMonth()+1); return nextMonth.getTime();
+      case "yearly": const nextYear = new Date(now); nextYear.setFullYear(now.getFullYear()+1); return nextYear.getTime();
+      default: return now.getTime() + 24*60*60*1000;
     }
   };
 
-  // Add a new habit
+  // Add habit
   const addHabit = (habit) => {
     const newHabit = { ...habit, id: Date.now(), due: calculateDueTime(habit.period) };
     setHabits((prev) => [...prev, newHabit]);
@@ -91,59 +78,55 @@ export const HabitProvider = ({ children }) => {
   // Complete habit
   const completeHabit = (id) => {
     setHabits((prev) => {
-      const habit = prev.find((h) => h.id === id);
+      const habit = prev.find(h => h.id === id);
       if (!habit) return prev;
 
-      // Update player XP/level
       setPlayer((p) => {
         const newXp = p.xp + habit.points;
-        const newLevel = Math.floor(newXp / 100) + 1;
+        const newLevel = Math.floor(newXp/100)+1;
         const updatedPlayer = { xp: newXp, level: newLevel };
-
         checkAchievements(habit, updatedPlayer);
         return updatedPlayer;
       });
 
-      // Move to previous habits once
       setPreviousHabits((prevPrev) => {
-        if (prevPrev.some((h) => h.id === habit.id)) return prevPrev;
+        if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
         return [...prevPrev, { ...habit, status: "completed" }];
       });
 
-      return prev.filter((h) => h.id !== id);
+      return prev.filter(h => h.id !== id);
     });
   };
 
   // Fail habit
   const failHabit = (id) => {
     setHabits((prev) => {
-      const habit = prev.find((h) => h.id === id);
+      const habit = prev.find(h => h.id === id);
       if (!habit) return prev;
 
       setPlayer((p) => {
         const newXp = Math.max(0, p.xp - habit.points);
-        const newLevel = Math.floor(newXp / 100) + 1;
+        const newLevel = Math.floor(newXp/100)+1;
         const updatedPlayer = { xp: newXp, level: newLevel };
-        checkAchievements(); // check achievements after XP loss
+        checkAchievements();
         return updatedPlayer;
       });
 
       setPreviousHabits((prevPrev) => {
-        if (prevPrev.some((h) => h.id === habit.id)) return prevPrev;
+        if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
         return [...prevPrev, { ...habit, status: "failed" }];
       });
 
-      return prev.filter((h) => h.id !== id);
+      return prev.filter(h => h.id !== id);
     });
   };
 
-  // Restart habit from previous
+  // Restart habit
   const restartHabit = (id) => {
-    const habit = previousHabits.find((h) => h.id === id);
+    const habit = previousHabits.find(h => h.id === id);
     if (!habit) return;
-
-    const restartedHabit = { ...habit, id: Date.now(), due: calculateDueTime(habit.period) };
-    setHabits((prev) => [...prev, restartedHabit]);
+    const restartedHabit = { ...habit, id: Date.now(), due: calculateDueTime(habit.period), restarted: true };
+    setHabits(prev => [...prev, restartedHabit]);
   };
 
   // Reset achievements
@@ -152,40 +135,36 @@ export const HabitProvider = ({ children }) => {
     localStorage.removeItem("achievements");
   };
 
-  // Auto check expired habits → move to previous
+  // Hard reset everything
+  const hardReset = () => {
+    setHabits([]);
+    setPreviousHabits([]);
+    setPlayer({ xp:0, level:1 });
+    setAchievements([]);
+    localStorage.removeItem("habits");
+    localStorage.removeItem("previousHabits");
+    localStorage.removeItem("player");
+    localStorage.removeItem("achievements");
+  };
+
+  // Auto-expiry
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
-
-      setHabits((prev) => {
+      setHabits(prev => {
         const active = [];
         const toMove = [];
-
-        prev.forEach((habit) => {
-          if (habit.due <= now) {
-            toMove.push(habit);
-          } else {
-            active.push(habit);
-          }
-        });
-
-        // Batch add expired habits to previousHabits
-        if (toMove.length > 0) {
-          setPreviousHabits((prevPrev) => {
+        prev.forEach(h => { if(h.due <= now) toMove.push(h); else active.push(h); });
+        if(toMove.length>0) {
+          setPreviousHabits(prevPrev => {
             const newPrev = [...prevPrev];
-            toMove.forEach((habit) => {
-              if (!newPrev.some((h) => h.id === habit.id)) {
-                newPrev.push({ ...habit, status: "failed" });
-              }
-            });
+            toMove.forEach(h => { if(!newPrev.some(ph => ph.id === h.id)) newPrev.push({...h,status:"failed"}); });
             return newPrev;
           });
         }
-
         return active;
       });
-    }, 1000 * 10);
-
+    }, 1000*10);
     return () => clearInterval(interval);
   }, []);
 
@@ -198,19 +177,18 @@ export const HabitProvider = ({ children }) => {
   }, [habits, previousHabits, player, achievements]);
 
   return (
-    <HabitContext.Provider
-      value={{
-        habits,
-        previousHabits,
-        player,
-        achievements,
-        addHabit,
-        completeHabit,
-        failHabit,
-        restartHabit,
-        resetAchievements,
-      }}
-    >
+    <HabitContext.Provider value={{
+      habits,
+      previousHabits,
+      player,
+      achievements,
+      addHabit,
+      completeHabit,
+      failHabit,
+      restartHabit,
+      resetAchievements,
+      hardReset
+    }}>
       {children}
     </HabitContext.Provider>
   );
