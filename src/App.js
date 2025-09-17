@@ -8,6 +8,7 @@ import HabitList from "./components/HabitList";
 import PreviousHabits from "./components/PreviousHabits";
 import Achievements from "./components/Achievements";
 import Settings from "./components/Settings"; // ✅ Added
+import Store from "./components/Store";
 
 import "./styles/App.css";
 
@@ -21,7 +22,8 @@ function App() {
           <HabitForm />        {/* Form to add new habits */}
           <HabitList />        {/* Active habits with timer and actions */}
           <PreviousHabits />   {/* Completed or failed habits, can restart */}
-          <Achievements />     {/* Unlocked badges / achievements */}
+          <Achievements />  
+          <Store />    {/* Unlocked badges / achievements */}
           <Settings />         {/* Reset achievements or hard reset everything */}
         </main>
       </div>

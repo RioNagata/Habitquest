@@ -16,6 +16,7 @@ const Navbar = () => {
         <div className="stats-text">
           <span>Level {player.level}</span>
           <span>{player.xp}/{xpForNextLevel} XP</span>
+          <span>Coins: {player.coins} 🪙</span>
         </div>
         <div className="xp-bar">
           <div className="xp-fill" style={{ width: `${progress}%` }}></div>

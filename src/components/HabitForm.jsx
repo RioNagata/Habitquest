@@ -21,7 +21,7 @@ const HabitForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="habit-form" onSubmit={handleSubmit}>
       <input
         type="text"
         placeholder="Habit name"
@@ -40,7 +40,9 @@ const HabitForm = () => {
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
       </select>
-      <button type="submit">Add Habit</button>
+      <button type="submit" className="btn btn-green">
+        Add Habit
+      </button>
     </form>
   );
 };

@@ -7,12 +7,16 @@ const HabitList = () => {
   const { habits } = useContext(HabitContext);
 
   return (
-    <div>
-      <h2>Active Habits</h2>
+    <div className="habit-group">
+      <h3>Active Habits</h3>
       {habits.length === 0 ? (
-        <p>No active habits. Add one!</p>
+        <p className="no-habits">No active habits. Add one!</p>
       ) : (
-        habits.map((habit) => <HabitCard key={habit.id} habit={habit} />)
+        <div className="habit-list">
+          {habits.map((habit) => (
+            <HabitCard key={habit.id} habit={habit} />
+          ))}
+        </div>
       )}
     </div>
   );
