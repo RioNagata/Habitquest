@@ -7,7 +7,7 @@ const PreviousHabits = () => {
 
   return (
     <div className="previous-habits">
-      <h3>Previous Habits</h3>
+      <h3>🏆 Previous Habits</h3>
       {previousHabits.length === 0 ? (
         <p className="no-habits">No previous habits yet.</p>
       ) : (
@@ -17,12 +17,20 @@ const PreviousHabits = () => {
               key={habit.id}
               className={`previous-habit-card ${habit.status === "completed" ? "completed" : "failed"}`}
             >
+              {/* Left side - Habit info */}
               <div className="habit-info">
-                <span>{habit.name}</span>
-                <span className="habit-frequency">({habit.status})</span>
+                <h4>{habit.name}</h4>
+                <p className="habit-meta">
+                  ⏳ {habit.duration || "N/A"} days • ⭐ {habit.points || 0} pts
+                </p>
+                <span className={`habit-status ${habit.status}`}>
+                  {habit.status.toUpperCase()}
+                </span>
               </div>
-              <button className="btn" onClick={() => restartHabit(habit.id)}>
-                Restart
+
+              {/* Right side - Restart button */}
+              <button className="btn btn-restart" onClick={() => restartHabit(habit.id)}>
+                🔄 Restart
               </button>
             </div>
           ))}

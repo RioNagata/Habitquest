@@ -1,5 +1,6 @@
 // src/App.js
 import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { HabitProvider } from "./context/HabitContext";
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
@@ -7,26 +8,42 @@ import HabitForm from "./components/HabitForm";
 import HabitList from "./components/HabitList";
 import PreviousHabits from "./components/PreviousHabits";
 import Achievements from "./components/Achievements";
-import Settings from "./components/Settings"; // ✅ Added
 import Store from "./components/Store";
+import Settings from "./components/Settings"; // 🔹 new settings page
 
 import "./styles/App.css";
 
 function App() {
   return (
     <HabitProvider>
-      <div className="App">
-        <Navbar />   {/* Shows player level, XP, etc. */}
-        <main>
-          <Dashboard />        {/* Level, XP, completed habits */}
-          <HabitForm />        {/* Form to add new habits */}
-          <HabitList />        {/* Active habits with timer and actions */}
-          <PreviousHabits />   {/* Completed or failed habits, can restart */}
-          <Achievements />  
-          <Store />    {/* Unlocked badges / achievements */}
-          <Settings />         {/* Reset achievements or hard reset everything */}
-        </main>
-      </div>
+      <Router>
+        <div className="App">
+          <Navbar />
+          <main>
+            <Routes>
+              {/* Home Page */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Dashboard />
+                    <HabitForm />
+                    <HabitList />
+                    <PreviousHabits />
+                    <Achievements />
+                  </>
+                }
+              />
+
+              {/* Rewards Store */}
+              <Route path="/store" element={<Store />} />
+
+              {/* Settings Page */}
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
     </HabitProvider>
   );
 }

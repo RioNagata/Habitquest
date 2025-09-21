@@ -1,5 +1,7 @@
+// src/components/Navbar.jsx
 import React, { useContext } from "react";
-import { HabitContext } from "../context/HabitContext";
+import { Link } from "react-router-dom"; // ✅ for navigation
+import { HabitContext } from "../context/HabitContext"; // ✅ import context
 
 const Navbar = () => {
   const { player } = useContext(HabitContext);
@@ -11,11 +13,16 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-left">
         <h1>HabitQuest</h1>
+        <Link to="/">Dashboard</Link>
+        <Link to="/store">Store</Link>
+        <Link to="/settings">Settings</Link>
       </div>
       <div className="navbar-right">
         <div className="stats-text">
           <span>Level {player.level}</span>
-          <span>{player.xp}/{xpForNextLevel} XP</span>
+          <span>
+            {player.xp}/{xpForNextLevel} XP
+          </span>
           <span>Coins: {player.coins} 🪙</span>
         </div>
         <div className="xp-bar">
@@ -26,4 +33,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar; // ✅ export default

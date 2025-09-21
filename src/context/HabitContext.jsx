@@ -86,57 +86,90 @@ export const HabitProvider = ({ children }) => {
 
   // Add habit
   const addHabit = (habit) => {
-    const newHabit = { ...habit, id: Date.now(), due: calculateDueTime(habit.period) };
-    setHabits(prev => [...prev, newHabit]);
+  const newHabit = { 
+    ...habit, 
+    id: Date.now(), 
+    due: calculateDueTime(habit.period), 
+    createdAt: Date.now() // ✅ track start time
   };
+  setHabits(prev => [...prev, newHabit]);
+};
 
-  // Complete habit
-  const completeHabit = (id) => {
-    setHabits(prev => {
-      const habit = prev.find(h => h.id === id);
-      if (!habit) return prev;
 
-      setPlayer(p => {
-        const newXp = (p.xp || 0) + (habit.points || 0);
-        const newCoins = (p.coins || 0) + (habit.points || 0); // coins safe
-        const newLevel = Math.floor(newXp / 100) + 1;
-        const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
-        checkAchievements(habit, updatedPlayer);
-        return updatedPlayer;
-      });
+  // ✅ Complete habit
+const completeHabit = (id) => {
+  setHabits(prev => {
+    const habit = prev.find(h => h.id === id);
+    if (!habit) return prev;
 
-      setPreviousHabits(prevPrev => {
-        if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
-        return [...prevPrev, { ...habit, status: "completed" }];
-      });
-
-      return prev.filter(h => h.id !== id);
+    setPlayer(p => {
+      const newXp = (p.xp || 0) + (habit.points || 0);
+      const newCoins = (p.coins || 0) + (habit.points || 0); // coins safe
+      const newLevel = Math.floor(newXp / 100) + 1;
+      const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
+      checkAchievements(habit, updatedPlayer);
+      return updatedPlayer;
     });
-  };
 
-  // Fail habit
-  const failHabit = (id) => {
-    setHabits(prev => {
-      const habit = prev.find(h => h.id === id);
-      if (!habit) return prev;
-
-      setPlayer(p => {
-        const newXp = Math.max(0, (p.xp || 0) - (habit.points || 0));
-        const newCoins = Math.max(0, (p.coins || 0) - Math.floor((habit.points || 0)/2));
-        const newLevel = Math.floor(newXp / 100) + 1;
-        const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
-        checkAchievements();
-        return updatedPlayer;
-      });
-
-      setPreviousHabits(prevPrev => {
-        if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
-        return [...prevPrev, { ...habit, status: "failed" }];
-      });
-
-      return prev.filter(h => h.id !== id);
+    setPreviousHabits(prevPrev => {
+      if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
+      const endTime = Date.now();
+      return [
+        ...prevPrev,
+        {
+          ...habit,
+          status: "completed",
+          endedAt: endTime,
+          duration: Math.max(
+            1,
+            Math.ceil((endTime - (habit.createdAt || endTime)) / (1000 * 60 * 60 * 24))
+          ),
+          points: habit.points || 10,
+        }
+      ];
     });
-  };
+
+    return prev.filter(h => h.id !== id);
+  });
+};
+
+// ✅ Fail habit
+const failHabit = (id) => {
+  setHabits(prev => {
+    const habit = prev.find(h => h.id === id);
+    if (!habit) return prev;
+
+    setPlayer(p => {
+      const newXp = Math.max(0, (p.xp || 0) - (habit.points || 0));
+      const newCoins = Math.max(0, (p.coins || 0) - Math.floor((habit.points || 0)/2));
+      const newLevel = Math.floor(newXp / 100) + 1;
+      const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
+      checkAchievements();
+      return updatedPlayer;
+    });
+
+    setPreviousHabits(prevPrev => {
+      if (prevPrev.some(h => h.id === habit.id)) return prevPrev;
+      const endTime = Date.now();
+      return [
+        ...prevPrev,
+        {
+          ...habit,
+          status: "failed",
+          endedAt: endTime,
+          duration: Math.max(
+            1,
+            Math.ceil((endTime - (habit.createdAt || endTime)) / (1000 * 60 * 60 * 24))
+          ),
+          points: 0,
+        }
+      ];
+    });
+
+    return prev.filter(h => h.id !== id);
+  });
+};
+
 
   // Restart habit
   const restartHabit = (id) => {
