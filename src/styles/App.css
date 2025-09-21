@@ -393,3 +393,167 @@ h2 {
     flex: 1 1 100%;
   }
 }
+
+/* Settings page layout */
+.settings.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 18px;
+  border-radius: 12px;
+}
+
+/* Grid: left profile + right controls */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* Card inside grid */
+.settings-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* profile row */
+.profile-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.profile-avatar.small {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.12);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.profile-avatar.small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* profile details */
+.profile-details .profile-name {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* settings rows */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.setting-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.setting-desc {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+}
+
+.setting-desc.small {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+/* Hard reset column (input + button) */
+.hard-reset-column {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* confirm input */
+.confirm-input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.02);
+  color: #fff;
+  outline: none;
+  min-width: 110px;
+}
+
+/* notice */
+.notice {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 880px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .hard-reset-column {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .confirm-input { width: 100%; }
+}
+
+/* Base button */
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+  color: #fff;
+  transition: all 0.25s ease;
+  margin: 6px 0;
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Hover + focus */
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Red destructive button */
+.btn-red {
+  background: linear-gradient(135deg, #d9534f, #ff5f5f);
+}
+
+.btn-red:hover {
+  opacity: 0.95;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+/* Add spacing between buttons inside rows */
+.setting-row button {
+  margin-top: 8px;
+}
+
+/* Center buttons better on small screens */
+@media (max-width: 880px) {
+  .btn {
+    width: 100%;
+  }
+}
