@@ -25,7 +25,7 @@ export default function Store() {
   return (
     <div className="store">
       <h3>Rewards Store 🛒</h3>
-      <p>Coins: {player.coins} 🪙</p>
+      <p>Coins: {player.coins}  🪙</p>
       <div className="store-items">
         {items.map((item) => (
           <div key={item.id} className="store-item">

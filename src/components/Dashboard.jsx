@@ -1,9 +1,11 @@
 // src/components/Dashboard.jsx
 import React, { useContext } from "react";
 import { HabitContext } from "../context/HabitContext";
+import { AuthContext } from "../context/AuthContext"; // ✅ import AuthContext
 
 const Dashboard = () => {
   const { player } = useContext(HabitContext);
+  const { user } = useContext(AuthContext); // ✅ get logged-in user
 
   const xpForNextLevel = player.level * 100;
   const progress = Math.min((player.xp / xpForNextLevel) * 100, 100);
@@ -19,9 +21,12 @@ const Dashboard = () => {
           />
         </div>
         <div className="player-info">
-          <h2>Adventurer</h2>
+          {/* ✅ Replace "Adventurer" with username */}
+          <h2>{user ? user.username : "Guest"}</h2>
           <p>Level {player.level}</p>
-          <p>{player.xp}/{xpForNextLevel} XP</p>
+          <p>
+            {player.xp}/{xpForNextLevel} XP
+          </p>
           <p>Coins: {player.coins} 🪙</p>
         </div>
       </div>
