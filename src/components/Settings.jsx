@@ -1,6 +1,7 @@
 // src/components/Settings.jsx
 import React, { useContext, useState } from "react";
 import { HabitContext } from "../context/HabitContext";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Settings() {
   const {
@@ -9,21 +10,25 @@ export default function Settings() {
     player,
     achievements,
     resetAchievements,
-    hardReset
+    hardReset,
   } = useContext(HabitContext);
+
+  const { user, updateUsername, updatePassword } = useContext(AuthContext);
 
   const [hardConfirmText, setHardConfirmText] = useState("");
   const [message, setMessage] = useState("");
 
+  const [newUsername, setNewUsername] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
   const handleResetAchievements = () => {
     if (!window.confirm("Reset all achievements? This cannot be undone.")) return;
     resetAchievements();
-    setMessage("Achievements reset.");
-    setTimeout(() => setMessage(""), 3000);
+    showMessage("Achievements reset.");
   };
 
   const handleHardReset = () => {
-    // extra safety: require typing RESET
     if (hardConfirmText.trim() !== "RESET") {
       alert('Type "RESET" in the box to confirm a hard reset.');
       return;
@@ -31,8 +36,7 @@ export default function Settings() {
     if (!window.confirm("Are you ABSOLUTELY SURE? This will clear all data.")) return;
     hardReset();
     setHardConfirmText("");
-    setMessage("All data has been wiped (hard reset).");
-    setTimeout(() => setMessage(""), 3000);
+    showMessage("All data has been wiped (hard reset).");
   };
 
   const exportData = () => {
@@ -49,7 +53,40 @@ export default function Settings() {
     a.download = `habitquest-backup-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setMessage("Exported data to JSON.");
+    showMessage("Exported data to JSON.");
+  };
+
+  const handleUsernameChange = () => {
+    if (!newUsername.trim()) {
+      showMessage("❌ Username cannot be empty.");
+      return;
+    }
+    const success = updateUsername(newUsername.trim());
+    if (success) {
+      setNewUsername("");
+      showMessage("✅ Username updated!");
+    } else {
+      showMessage("❌ Username already taken.");
+    }
+  };
+
+  const handlePasswordChange = () => {
+    if (!newPassword.trim() || newPassword.length < 6) {
+      showMessage("❌ Password must be at least 6 characters.");
+      return;
+    }
+    const success = updatePassword(oldPassword, newPassword.trim());
+    if (success) {
+      setOldPassword("");
+      setNewPassword("");
+      showMessage("✅ Password updated!");
+    } else {
+      showMessage("❌ Current password is incorrect.");
+    }
+  };
+
+  const showMessage = (msg) => {
+    setMessage(msg);
     setTimeout(() => setMessage(""), 3000);
   };
 
@@ -64,7 +101,7 @@ export default function Settings() {
               <img src="/images/avatar.png" alt="avatar" />
             </div>
             <div className="profile-details">
-              <div className="profile-name">Adventurer</div>
+              <div className="profile-name">{user?.username || "Adventurer"}</div>
               <div>Level: <strong>{player?.level ?? 1}</strong></div>
               <div>XP: <strong>{player?.xp ?? 0}</strong></div>
               <div>Coins: <strong>{player?.coins ?? 0} 🪙</strong></div>
@@ -84,21 +121,23 @@ export default function Settings() {
         <div className="settings-card">
           <h3>Controls</h3>
 
+          {/* Reset Achievements */}
           <div className="setting-row">
             <div>
               <div className="setting-title">Reset Achievements</div>
               <div className="setting-desc">Clear unlocked achievements (keeps habits & player data).</div>
             </div>
             <div>
-              <button className="btn" onClick={handleResetAchievements}>Reset Achievements</button>
+              <button className="btn" onClick={handleResetAchievements}>Reset</button>
             </div>
           </div>
 
+          {/* Hard Reset */}
           <div className="setting-row">
             <div>
               <div className="setting-title">Hard Reset Everything</div>
-              <div className="setting-desc">Removes habits, previous habits, player XP/coins/level, and achievements.</div>
-              <div className="setting-desc small">Type <code>RESET</code> below and click Confirm to enable.</div>
+              <div className="setting-desc">Removes habits, player stats, and achievements.</div>
+              <div className="setting-desc small">Type <code>RESET</code> below and click Confirm.</div>
             </div>
             <div className="hard-reset-column">
               <input
@@ -107,25 +146,72 @@ export default function Settings() {
                 value={hardConfirmText}
                 onChange={(e) => setHardConfirmText(e.target.value)}
               />
-              <button
-                className="btn btn-red"
-                onClick={handleHardReset}
-              >
-                Hard Reset
+              <button className="btn btn-red" onClick={handleHardReset}>Confirm</button>
+            </div>
+          </div>
+
+          {/* Export Data */}
+          <div className="setting-row">
+            <div>
+              <div className="setting-title">Export Data</div>
+              <div className="setting-desc">Download your data as a JSON backup.</div>
+            </div>
+            <div>
+              <button className="btn" onClick={exportData}>Export</button>
+            </div>
+          </div>
+
+          <hr />
+
+          {/* Change Username */}
+          <h3>Account Settings</h3>
+          <div className="setting-row">
+            <div>
+              <div className="setting-title">Change Username</div>
+              <div className="setting-desc">Update your display name.</div>
+            </div>
+            <div className="setting-form">
+              <input
+                type="text"
+                className="input"
+                placeholder="New username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+              />
+              <button className="btn btn-small" onClick={handleUsernameChange}>
+                Update
               </button>
             </div>
           </div>
 
+          {/* Change Password */}
           <div className="setting-row">
             <div>
-              <div className="setting-title">Export Data</div>
-              <div className="setting-desc">Download a JSON backup of your habits, previous habits, player and achievements.</div>
+              <div className="setting-title">Change Password</div>
+              <div className="setting-desc">Enter your current password and new password.</div>
             </div>
-            <div>
-              <button className="btn" onClick={exportData}>Export JSON</button>
+            <div className="setting-form">
+              <input
+                type="password"
+                className="input"
+                placeholder="Current password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                className="input"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <button className="btn btn-small" onClick={handlePasswordChange}>
+                Update
+              </button>
             </div>
           </div>
 
+          {/* Notice messages */}
           <div style={{ marginTop: 12 }}>
             {message && <div className="notice">{message}</div>}
           </div>

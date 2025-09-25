@@ -1,55 +1,95 @@
-// src/context/AuthContext.js
+// src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    return JSON.parse(localStorage.getItem("user")) || null;
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
   });
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [user]);
+  const [users, setUsers] = useState(() => {
+    const saved = localStorage.getItem("users");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const login = (username, password) => {
-    // simple check: allow login if username exists in localStorage
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const foundUser = users.find(
+    const existing = users.find(
       (u) => u.username === username && u.password === password
     );
-
-    if (foundUser) {
-      setUser(foundUser);
+    if (existing) {
+      setUser(existing);
+      localStorage.setItem("user", JSON.stringify(existing));
       return true;
     }
     return false;
   };
 
   const register = (username, password) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    if (users.find((u) => u.username === username)) {
-      return { success: false, message: "User already exists" };
+    if (users.some((u) => u.username === username)) {
+      return false; // username taken
     }
-
-    const newUser = { username, password };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
+    const newUser = { id: Date.now(), username, password };
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
     setUser(newUser);
-    return { success: true };
+    localStorage.setItem("user", JSON.stringify(newUser));
+    return true;
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  // ✅ Update username
+  const updateUsername = (newUsername) => {
+    if (!user) return false;
+    if (users.some((u) => u.username === newUsername)) {
+      return false; // username already exists
+    }
+    const updatedUser = { ...user, username: newUsername };
+    const updatedUsers = users.map((u) =>
+      u.id === user.id ? updatedUser : u
+    );
+
+    setUser(updatedUser);
+    setUsers(updatedUsers);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    return true;
+  };
+
+  // ✅ Update password
+  const updatePassword = (oldPassword, newPassword) => {
+    if (!user || user.password !== oldPassword) return false;
+
+    const updatedUser = { ...user, password: newPassword };
+    const updatedUsers = users.map((u) =>
+      u.id === user.id ? updatedUser : u
+    );
+
+    setUser(updatedUser);
+    setUsers(updatedUsers);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    return true;
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        users,
+        login,
+        register,
+        logout,
+        updateUsername,
+        updatePassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
