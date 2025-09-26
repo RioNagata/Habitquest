@@ -24,7 +24,7 @@ const HabitForm = () => {
     <form className="habit-form" onSubmit={handleSubmit}>
       <input
         type="text"
-        placeholder="Habit name"
+        placeholder="Enter a new habit (e.g., Drink water, Exercise, Read)"
         value={name}
         onChange={(e) => setName(e.target.value)}
       />

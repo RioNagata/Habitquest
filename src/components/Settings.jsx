@@ -2,6 +2,7 @@
 import React, { useContext, useState } from "react";
 import { HabitContext } from "../context/HabitContext";
 import { AuthContext } from "../context/AuthContext";
+import { ThemeContext } from "../context/ThemeContext";
 
 export default function Settings() {
   const {
@@ -14,6 +15,7 @@ export default function Settings() {
   } = useContext(HabitContext);
 
   const { user, updateUsername, updatePassword } = useContext(AuthContext);
+  const { theme, changeTheme, resetTheme } = useContext(ThemeContext);
 
   const [hardConfirmText, setHardConfirmText] = useState("");
   const [message, setMessage] = useState("");
@@ -35,8 +37,9 @@ export default function Settings() {
     }
     if (!window.confirm("Are you ABSOLUTELY SURE? This will clear all data.")) return;
     hardReset();
+    resetTheme(); // restore default theme
     setHardConfirmText("");
-    showMessage("All data has been wiped (hard reset).");
+    showMessage("All data has been wiped (hard reset). Default theme restored.");
   };
 
   const exportData = () => {
@@ -158,6 +161,28 @@ export default function Settings() {
             </div>
             <div>
               <button className="btn" onClick={exportData}>Export</button>
+            </div>
+          </div>
+
+          <hr />
+
+          {/* Theme Selector */}
+          <h3>Appearance</h3>
+          <div className="setting-row">
+            <div>
+              <div className="setting-title">Theme</div>
+              <div className="setting-desc">Choose how the app looks.</div>
+            </div>
+            <div className="setting-form">
+              <select
+                className="input"
+                value={theme}
+                onChange={(e) => changeTheme(e.target.value)}
+              >
+                <option value="light">🌞 Light</option>
+                <option value="dark">🌙 Dark</option>
+                <option value="retro">🎮 Retro</option>
+              </select>
             </div>
           </div>
 

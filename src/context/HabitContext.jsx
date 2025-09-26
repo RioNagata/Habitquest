@@ -11,7 +11,15 @@ export const HabitProvider = ({ children }) => {
   const defaultData = {
     habits: [],
     previousHabits: [],
-    player: { xp: 0, level: 1, coins: 0 },
+    player: { 
+      xp: 0, 
+      level: 1, 
+      coins: 0,
+      inventory: [], // ✅ always initialized
+      avatar: "/images/avatar.png",
+      theme: "light",
+      badges: []
+    },
     achievements: [],
   };
 
@@ -41,10 +49,11 @@ export const HabitProvider = ({ children }) => {
   // ✅ State Setters
   // -------------------
   const setPlayer = (updater) => {
-    updateUserData((prev) => ({
-      ...prev,
-      player: typeof updater === "function" ? updater(prev.player) : updater,
-    }));
+    updateUserData((prev) => {
+      const updatedPlayer =
+        typeof updater === "function" ? updater(prev.player) : updater;
+      return { ...prev, player: { ...defaultData.player, ...updatedPlayer } };
+    });
   };
 
   const setHabits = (updater) => {
@@ -57,19 +66,37 @@ export const HabitProvider = ({ children }) => {
   const setPreviousHabits = (updater) => {
     updateUserData((prev) => ({
       ...prev,
-      previousHabits: typeof updater === "function" ? updater(prev.previousHabits) : updater,
+      previousHabits:
+        typeof updater === "function" ? updater(prev.previousHabits) : updater,
     }));
   };
 
   const setAchievements = (updater) => {
     updateUserData((prev) => ({
       ...prev,
-      achievements: typeof updater === "function" ? updater(prev.achievements) : updater,
+      achievements:
+        typeof updater === "function" ? updater(prev.achievements) : updater,
     }));
   };
 
   // -------------------
-  // ✅ Functions (copied from your code, adjusted for per-user)
+  // ✅ Store Functionality
+  // -------------------
+  const buyItem = (item) => {
+    setPlayer((p) => {
+      if ((p.coins || 0) >= item.cost) {
+        return {
+          ...p,
+          coins: p.coins - item.cost,
+          inventory: [...(p.inventory || []), item], // ✅ safe push
+        };
+      }
+      return p;
+    });
+  };
+
+  // -------------------
+  // ✅ Achievements (unchanged, but uses updatedPlayer where needed)
   // -------------------
   const achievementList = [
     { id: 1, name: "First Habit Completed", condition: (player, habits, previousHabits, lastCompletedHabit) => lastCompletedHabit !== undefined },
@@ -105,6 +132,9 @@ export const HabitProvider = ({ children }) => {
     });
   };
 
+  // -------------------
+  // Habits (unchanged except safe defaults)
+  // -------------------
   const calculateDueTime = (period) => {
     const now = new Date();
     switch (period) {
@@ -130,7 +160,7 @@ export const HabitProvider = ({ children }) => {
         const newXp = (p.xp || 0) + (habit.points || 0);
         const newCoins = (p.coins || 0) + (habit.points || 0);
         const newLevel = Math.floor(newXp / 100) + 1;
-        const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
+        const updatedPlayer = { ...p, xp: newXp, level: newLevel, coins: newCoins };
         checkAchievements(habit, updatedPlayer);
         return updatedPlayer;
       });
@@ -163,7 +193,7 @@ export const HabitProvider = ({ children }) => {
         const newXp = Math.max(0, (p.xp || 0) - (habit.points || 0));
         const newCoins = Math.max(0, (p.coins || 0) - Math.floor((habit.points || 0) / 2));
         const newLevel = Math.floor(newXp / 100) + 1;
-        const updatedPlayer = { xp: newXp, level: newLevel, coins: newCoins };
+        const updatedPlayer = { ...p, xp: newXp, level: newLevel, coins: newCoins };
         checkAchievements();
         return updatedPlayer;
       });
@@ -201,7 +231,7 @@ export const HabitProvider = ({ children }) => {
   const hardReset = () => {
     setHabits([]);
     setPreviousHabits([]);
-    setPlayer({ xp: 0, level: 1, coins: 0 });
+    setPlayer({ xp: 0, level: 1, coins: 0, inventory: [], avatar: "/images/avatar.png", theme: "light", badges: [] });
     setAchievements([]);
   };
 
@@ -243,6 +273,8 @@ export const HabitProvider = ({ children }) => {
         restartHabit,
         resetAchievements,
         hardReset,
+        setPlayer,
+        buyItem, // ✅ expose buyItem to Store.jsx
       }}
     >
       {children}
