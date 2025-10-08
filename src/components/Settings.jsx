@@ -218,14 +218,14 @@ export default function Settings() {
             <div className="setting-form">
               <input
                 type="password"
-                className="input"
+                className="confirm-input"
                 placeholder="Current password"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
               />
               <input
                 type="password"
-                className="input"
+                className="confirm-input"
                 placeholder="New password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}

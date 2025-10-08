@@ -14,7 +14,6 @@ const HabitForm = () => {
 
     addHabit({ name, points: parseInt(points), period });
 
-    // reset
     setName("");
     setPoints(10);
     setPeriod("daily");
@@ -23,8 +22,9 @@ const HabitForm = () => {
   return (
     <form className="habit-form" onSubmit={handleSubmit}>
       <input
+        className="confirm-input"
         type="text"
-        placeholder="Enter a new habit (e.g., Drink water, Exercise, Read)"
+        placeholder="Enter a new habit (e.g., Drink water)"
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
@@ -40,7 +40,7 @@ const HabitForm = () => {
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
       </select>
-      <button type="submit" className="btn btn-green">
+      <button type="submit" className="btn">
         Add Habit
       </button>
     </form>
