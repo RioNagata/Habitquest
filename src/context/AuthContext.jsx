@@ -5,13 +5,18 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
+    // 💡 IMPORTANT: Ensure the user object loaded here includes profilePicUrl
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
   const [users, setUsers] = useState(() => {
+    // 💡 IMPORTANT: Ensure the users array includes the profilePicUrl property 
+    // on all objects for consistency, defaulting to null if missing.
     const saved = localStorage.getItem("users");
-    return saved ? JSON.parse(saved) : [];
+    const parsedUsers = saved ? JSON.parse(saved) : [];
+    // Ensure all users have the profilePicUrl property on load
+    return parsedUsers.map(u => ({ ...u, profilePicUrl: u.profilePicUrl || null }));
   });
 
   const login = (username, password) => {
@@ -30,7 +35,9 @@ export const AuthProvider = ({ children }) => {
     if (users.some((u) => u.username === username)) {
       return false; // username taken
     }
-    const newUser = { id: Date.now(), username, password };
+    // 📸 NEW: Initialize newUser with profilePicUrl set to null
+    const newUser = { id: Date.now(), username, password, profilePicUrl: null }; 
+    
     const updatedUsers = [...users, newUser];
     setUsers(updatedUsers);
     localStorage.setItem("users", JSON.stringify(updatedUsers));
@@ -78,6 +85,26 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
+  // 📸 NEW FUNCTION: Update the profile picture URL for the current user
+  const updateProfilePicture = (newPicUrl) => {
+    if (!user) return;
+
+    // 1. Update the current user object
+    const updatedUser = { ...user, profilePicUrl: newPicUrl };
+    
+    // 2. Update the 'users' array in state and local storage
+    const updatedUsers = users.map((u) =>
+      u.id === user.id ? updatedUser : u
+    );
+
+    // 3. Save all changes
+    setUser(updatedUser);
+    setUsers(updatedUsers);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+  };
+
+
   return (
     <AuthContext.Provider
       value={{
@@ -88,6 +115,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateUsername,
         updatePassword,
+        updateProfilePicture, // 📸 EXPOSE THE NEW FUNCTION
       }}
     >
       {children}

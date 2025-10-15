@@ -700,3 +700,43 @@ main > *:last-child {
   .navbar-right { padding-top: 20px;}
 }
 
+/* In your main CSS file (e.g., App.css or Settings.css) */
+
+.profile-avatar {
+    /* Make sure the base avatar div is set up for the image */
+    width: 60px; /* Or whatever size you prefer */
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer; /* To indicate it's clickable */
+    position: relative; /* Needed for absolute positioning of the hint */
+    display: flex; /* Helps center default image */
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-avatar img {
+    /* Ensure the default image fits */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-hint {
+    /* This will overlay a subtle "Upload" text on the default avatar */
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    color: white;
+    font-size: 10px;
+    text-align: center;
+    padding: 2px 0;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s;
+}
+
+.profile-avatar:hover .upload-hint {
+    opacity: 1; /* Show the hint on hover */
+}

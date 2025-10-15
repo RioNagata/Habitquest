@@ -1,7 +1,7 @@
 // src/components/Settings.jsx
 import React, { useContext, useState } from "react";
 import { HabitContext } from "../context/HabitContext";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext"; // AuthContext is now used for persistence
 import { ThemeContext } from "../context/ThemeContext";
 
 export default function Settings() {
@@ -14,7 +14,8 @@ export default function Settings() {
     hardReset,
   } = useContext(HabitContext);
 
-  const { user, updateUsername, updatePassword } = useContext(AuthContext);
+  // 🔄 MODIFIED: Get user, updateUsername, updatePassword, AND updateProfilePicture from AuthContext
+  const { user, updateUsername, updatePassword, updateProfilePicture } = useContext(AuthContext);
   const { theme, changeTheme, resetTheme } = useContext(ThemeContext);
 
   const [hardConfirmText, setHardConfirmText] = useState("");
@@ -23,6 +24,12 @@ export default function Settings() {
   const [newUsername, setNewUsername] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  
+  // ❌ REMOVED: Local profilePicUrl state is removed, we use user?.profilePicUrl now!
+  // const [profilePicUrl, setProfilePicUrl] = useState(null); 
+  
+  // 💡 HELPER: The source of truth for the image URL is the user object in AuthContext
+  const currentProfilePic = user?.profilePicUrl; 
 
   const handleResetAchievements = () => {
     if (!window.confirm("Reset all achievements? This cannot be undone.")) return;
@@ -87,6 +94,35 @@ export default function Settings() {
       showMessage("❌ Current password is incorrect.");
     }
   };
+  
+  // 🔄 MODIFIED: Now calls the context function to save the URL globally
+  const handleProfilePicChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        // 🚀 KEY CHANGE: Call the context function to save the Data URL
+        updateProfilePicture(reader.result); 
+        showMessage("✅ Profile picture saved!");
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+  
+  // 📸 NEW FUNCTION: Triggers the hidden file input
+  const triggerFileInput = () => {
+    document.getElementById('profilePicInput').click();
+  };
+
+  // 📸 NEW FUNCTION: Clears the profile picture globally
+  const handleRemovePicture = () => {
+    updateProfilePicture(null); // Save null to the context
+    showMessage("✅ Profile picture removed!");
+  };
+
 
   const showMessage = (msg) => {
     setMessage(msg);
@@ -95,14 +131,40 @@ export default function Settings() {
 
   return (
     <section className="settings card">
+      {/* 📸 NEW HIDDEN INPUT: The actual file selector */}
+      <input
+        type="file"
+        id="profilePicInput"
+        accept="image/*" 
+        onChange={handleProfilePicChange}
+        style={{ display: 'none' }} 
+      />
+      {/* 📸 END OF NEW HIDDEN INPUT */}
+
       <div className="settings-grid">
         {/* Left column - player summary */}
         <div className="settings-card">
           <h3>Profile</h3>
           <div className="profile-row">
-            <div className="profile-avatar small">
-              <img src="/images/avatar.png" alt="avatar" />
+            {/* 📸 MODIFIED AVATAR DISPLAY: Uses currentProfilePic (from context) */}
+            <div className="profile-avatar small" onClick={triggerFileInput}>
+              {currentProfilePic ? (
+                // Use the uploaded image URL from context
+                <img 
+                    src={currentProfilePic} 
+                    alt="Profile" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', cursor: 'pointer' }}
+                />
+              ) : (
+                // Fallback to the default avatar and add a hint to click
+                <>
+                    <img src="/images/avatar.png" alt="Default Avatar" style={{ cursor: 'pointer' }} />
+                    <div className="upload-hint">Upload</div>
+                </>
+              )}
             </div>
+            {/* 📸 END OF MODIFIED AVATAR DISPLAY */}
+            
             <div className="profile-details">
               <div className="profile-name">{user?.username || "Adventurer"}</div>
               <div>Level: <strong>{player?.level ?? 1}</strong></div>
@@ -110,6 +172,23 @@ export default function Settings() {
               <div>Coins: <strong>{player?.coins ?? 0} 🪙</strong></div>
             </div>
           </div>
+          
+          {/* 📸 NEW BUTTON ROW: Conditioned on context value and uses removal handler */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                <button 
+                    className="btn btn-small" 
+                    onClick={triggerFileInput}
+                >
+                    Change Picture
+                </button>
+                <button 
+                    className="btn btn-small btn-red" 
+                    onClick={handleRemovePicture} // Use the new context removal function
+                >
+                    Remove
+                </button>
+            </div>
+          {/* 📸 END OF NEW BUTTON ROW */}
 
           <hr />
 
@@ -120,7 +199,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Right column - controls */}
+        {/* Right column - controls (REST OF JSX REMAINS THE SAME) */}
         <div className="settings-card">
           <h3>Controls</h3>
 
